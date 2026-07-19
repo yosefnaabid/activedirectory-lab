@@ -1,0 +1,9 @@
+# Vagrant / VirtualBox
+.vagrant/
+*.box
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/

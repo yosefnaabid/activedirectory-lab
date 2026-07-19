@@ -1,0 +1,13 @@
+# Dominios bloqueados por el proxy (declarativo: editar aqui y relanzar
+# squid.sh, o recargar con: squid -k reconfigure).
+#
+# El punto inicial incluye todos los subdominios (.facebook.com bloquea
+# tambien www.facebook.com, m.facebook.com...).
+#
+# El ultimo es un dominio de prueba: no existe en el DNS, pero Squid
+# evalua dstdomain sobre la URL antes de resolver, asi que sirve para
+# verificar el bloqueo sin depender de internet.
+.facebook.com
+.tiktok.com
+.marca.com
+.ejemplo-bloqueado.test

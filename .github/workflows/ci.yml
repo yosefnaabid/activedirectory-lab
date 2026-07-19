@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar PSScriptAnalyzer y Pester
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Force -Scope CurrentUser
+          Install-Module Pester -MinimumVersion 5.5.0 -Force -Scope CurrentUser -SkipPublisherCheck
+
+      - name: Lint (PSScriptAnalyzer)
+        shell: pwsh
+        run: |
+          $issues = Get-ChildItem -Recurse -Include *.ps1 -Path provision, scripts, tests |
+            ForEach-Object { Invoke-ScriptAnalyzer -Path $_.FullName -Settings ./PSScriptAnalyzerSettings.psd1 -Severity Warning, Error }
+          $issues | Format-Table -AutoSize
+          if ($issues) { throw "PSScriptAnalyzer encontro $($issues.Count) problema(s)." }
+          Write-Host "Lint OK: sin avisos ni errores."
+
+      - name: Pruebas (Pester)
+        shell: pwsh
+        run: |
+          Import-Module Pester -MinimumVersion 5.0
+          $cfg = New-PesterConfiguration
+          $cfg.Run.Path = './tests'
+          $cfg.Run.Exit = $true
+          $cfg.Output.Verbosity = 'Detailed'
+          Invoke-Pester -Configuration $cfg
